@@ -1,5 +1,4 @@
-/*Vectors are used to group related signals using one name to make it more convenient to manipulate.
-For example, wire [7:0] w; declares an 8-bit vector named w that is equivalent to having 8 separate wires.
+/*Build a combinational circuit that splits an input half-word (16 bits, [15:0] ) into lower [7:0] and upper [15:8] bytes.
 */
 `default_nettype none     // Disable implicit nets. Reduces some types of bugs.
 module top_module( 
