@@ -22,3 +22,15 @@ module top_module(
         for(k=0;k<3;k=k+1) out_different[k]=(in[k]^in[k+1]);
     end
 endmodule
+
+/*
+module top_module (
+	input [3:0] in,
+	output [2:0] out_both,
+	output [3:1] out_any,
+	output [3:0] out_different
+);
+assign out_any = in[3:1] | in[2:0];
+assign out_both = in[2:0] & in[3:1];
+assign out_different = in ^ {in[0], in[3:1]};
+*/
