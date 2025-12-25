@@ -19,35 +19,25 @@ module top_module(
     input [255:0] data,
     output [255:0] q
 );
-    reg [323:0]r;
     integer i, alive;
-    assign r = {q[240],q[255:240],q[255],
-                q[0],q[15:0],q[15],
-                q[16],q[31:16],q[31],
-                q[32],q[47:32],q[47],
-                q[48],q[63:48],q[63],
-                q[64],q[79:64],q[79],
-                q[80],q[95:80],q[95],
-                q[96],q[111:96],q[111],
-                q[112],q[127:112],q[127],
-                q[128],q[143:128],q[143],
-                q[144],q[159:144],q[159],
-                q[160],q[175:160],q[175],
-                q[176],q[191:176],q[191],
-                q[192],q[207:192],q[207],
-                q[208],q[223:208],q[223],
-                q[224],q[239:224],q[239],
-                q[240],q[255:240],q[255],
-                q[0],q[15:0],q[15]};
     always @(posedge clk) begin
         if (load) q<= data;
         else begin
             for (i=0;i<=255;i=i+1) begin
-                alive = ;
-                if(alive < 2) q[i] = 1'b0;
-                else if(alive == 2) q[i] = q[i];
-                else if(alive == 3) q[i] = 1'b1;
-                else q[i] = 1'b0;
+                if (i==0) alive = q[255]+q[240]+q[241]+q[15]+q[1]+q[31]+q[16]+q[17];
+                else if (i==15) alive = q[254]+q[255]+q[240]+q[14]+q[0]+q[30]+q[31]+q[16];
+                else if (i==240) alive = q[239]+q[224]+q[225]+q[255]+q[241]+q[15]+q[0]+q[1];
+                else if (i==255) alive = q[238]+q[239]+q[224]+q[254]+q[240]+q[14]+q[15]+q[0];
+                else if (i<15) alive = q[i+239]+q[i+240]+q[i+241]+q[i-1]+q[i+1]+q[i+15]+q[i+16]+q[i+17];
+                else if (!(i%16)) alive = q[i-1]+q[i-16]+q[i-15]+q[i+15]+q[i+1]+q[i+31]+q[i+16]+q[i+17];
+                else if (!((i+1)%16)) alive = q[i-17]+q[i-16]+q[i-31]+q[i-1]+q[i-15]+q[i+15]+q[i+16]+q[i+1];
+                else if (i>240) alive = q[i-17]+q[i-16]+q[i-15]+q[i-1]+q[i+1]+q[i-241]+q[i-240]+q[i-239];
+                else alive = q[i-17]+q[i-16]+q[i-15]+q[i-1]+q[i+1]+q[i+15]+q[i+16]+q[i+17];
+                
+                if(alive < 2) q[i] <= 1'b0;
+                else if(alive == 2) q[i] <= q[i];
+                else if(alive == 3) q[i] <= 1'b1;
+                else q[i] <= 1'b0;
             end
         end
     end
