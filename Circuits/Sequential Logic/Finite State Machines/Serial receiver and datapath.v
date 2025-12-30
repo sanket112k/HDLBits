@@ -1,0 +1,60 @@
+/*
+Now that you have a finite state machine that can identify when bytes are correctly received in a serial bitstream, add a datapath that will output the correctly-received data byte.
+out_byte needs to be valid when done is 1, and is don't-care otherwise.
+
+Note that the serial protocol sends the least significant bit first.
+*/
+
+module top_module(
+    input clk,
+    input in,
+    input reset,    // Synchronous reset
+    output [7:0] out_byte,
+    output done
+);
+    reg [3:0] state, next_state, previous;
+    reg [7:0]r;
+    reg enable;
+    integer i;
+    parameter [3:0] STOP0 = 0, START0 = 1, D0 = 2, D1 = 3, D2 = 4, D3 = 5, D4 = 6, D5 = 7, D6 = 8, D7 = 9, ERROR = 10, STOP1 = 11, START1 = 12;
+
+    always @(*) begin 		// State transition logic (combinational)
+        case(state)
+            STOP0: next_state = in ? STOP0 : START0;
+            START0: next_state = D0;
+            D0: next_state = D1;
+            D1: next_state = D2;
+            D2: next_state = D3;
+            D3: next_state = D4;
+            D4: next_state = D5;
+            D5: next_state = D6;
+            D6: next_state = D7;
+            D7: next_state = in ? STOP1 : ERROR;
+            ERROR: next_state = in ? STOP0 : ERROR;
+            STOP1: next_state = in ? STOP1 : START1;
+            START1: next_state = D0;
+            default: next_state = STOP0;
+        endcase
+    end
+
+    always @(posedge clk) begin		// State flip-flops (sequential)
+        if (reset) state <= STOP0;
+        else begin
+            state <= next_state;
+            previous <= state;
+        end
+    end
+    
+    assign done = (state == STOP1 && previous != STOP1);	// Output logic
+    
+    always @(posedge clk) begin		// New: Datapath to latch input bits
+        if(reset) r = 8'b0;
+        else begin
+            if (state == START0 || state == START1) enable = 1'b1;
+            else if (state == D7) enable = 1'b0;
+            
+            if (enable) r <= {in,r[7:1]};
+        end
+    end
+    assign out_byte = (done) ? r : 8'b0;
+endmodule
